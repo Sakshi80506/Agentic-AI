@@ -1,0 +1,91 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  name        String?
+  avatarUrl   String?
+  descopeId   String?  @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  preferences   MeetingPreference?
+  conversations Conversation[]
+  meetings      ScheduledMeeting[]
+
+  @@map("users")
+}
+
+model MeetingPreference {
+  id                     String   @id @default(cuid())
+  userId                 String   @unique
+  workingHoursStart      String   @default("09:00")
+  workingHoursEnd        String   @default("17:00")
+  defaultDurationMinutes Int      @default(30)
+  timezone               String   @default("UTC")
+  preferredDays          String[] @default(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("meeting_preferences")
+}
+
+model Conversation {
+  id        String    @id @default(cuid())
+  userId    String
+  title     String    @default("New Conversation")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@map("conversations")
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  role           String   // "user" | "assistant" | "system"
+  content        String
+  actionCardData Json?    // Optional structured action payload requiring approval
+  status         String?  @default("success") // "sending" | "success" | "error"
+  createdAt      DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+}
+
+model ScheduledMeeting {
+  id            String   @id @default(cuid())
+  userId        String
+  googleEventId String?  @unique
+  title         String
+  description   String?
+  startTime     DateTime
+  endTime       DateTime
+  attendees     Json     // List of { name, email, avatar }
+  meetLink      String?
+  status        String   @default("confirmed") // "confirmed" | "tentative" | "cancelled"
+  category      String   @default("planning")  // "planning" | "1on1" | "standup" | "client"
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("scheduled_meetings")
+}
+
