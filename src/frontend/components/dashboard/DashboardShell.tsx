@@ -1,13 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
-import { Sidebar } from "./Sidebar";
+import React, { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { useDescope, useSession, useUser } from "@descope/nextjs-sdk/client";
+import { Sidebar, ConversationSummary } from "./Sidebar";
 import { ChatInterface } from "./ChatInterface";
 import { CalendarSection } from "./CalendarSection";
 import { UpcomingMeetingsView } from "./UpcomingMeetingsView";
 import { SettingsView } from "./SettingsView";
 import { MeetingDetailsModal } from "./MeetingDetailsModal";
 import { Meeting } from "@shared/types/meeting";
+import { ChatMessage } from "@shared/types/chat";
 import {
   Menu,
   Columns,
@@ -16,11 +19,223 @@ import {
 import { cn } from "@shared/utils/utils";
 
 export const DashboardShell: React.FC = () => {
+  const router = useRouter();
+  const descope = useDescope();
+  const { isAuthenticated } = useSession();
+  const { user: descopeUser } = useUser();
+
   const [activeTab, setActiveTab] = useState<"chat" | "calendar" | "meetings" | "settings">("chat");
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const [isSplitView, setIsSplitView] = useState<boolean>(true);
   const [selectedMeeting, setSelectedMeeting] = useState<Meeting | null>(null);
   const [activePrompt, setActivePrompt] = useState<string | undefined>(undefined);
+
+  // Database State (Neon PostgreSQL)
+  const [conversations, setConversations] = useState<ConversationSummary[]>([]);
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const [currentMessages, setCurrentMessages] = useState<ChatMessage[]>([]);
+  const [isLoadingConversations, setIsLoadingConversations] = useState<boolean>(false);
+  const [isLoadingMessages, setIsLoadingMessages] = useState<boolean>(false);
+  const [dbUserProfile, setDbUserProfile] = useState<{
+    name?: string | null;
+    email?: string | null;
+    profileImage?: string | null;
+  } | null>(null);
+
+  // 1. Fetch User Profile
+  const fetchUserProfile = useCallback(async () => {
+    try {
+      const res = await fetch("/api/user/me");
+      if (res.ok) {
+        const data = await res.json();
+        setDbUserProfile(data.user);
+      } else if (descopeUser) {
+        setDbUserProfile({
+          name: descopeUser.name || "User",
+          email: descopeUser.email || "",
+          profileImage: descopeUser.picture || null,
+        });
+      }
+    } catch (err) {
+      console.warn("Could not fetch user profile from DB (using session fallback):", err);
+    }
+  }, [descopeUser]);
+
+  // 2. Fetch Conversations from PostgreSQL
+  const fetchConversations = useCallback(async () => {
+    setIsLoadingConversations(true);
+    try {
+      const res = await fetch("/api/conversations");
+      if (res.ok) {
+        const data = await res.json();
+        setConversations(data.conversations || []);
+        // Automatically select the first conversation if none selected
+        if (data.conversations && data.conversations.length > 0 && !activeConversationId) {
+          setActiveConversationId(data.conversations[0].id);
+        }
+      }
+    } catch (err) {
+      console.warn("Could not fetch conversations from DB:", err);
+    } finally {
+      setIsLoadingConversations(false);
+    }
+  }, [activeConversationId]);
+
+  // 3. Fetch Messages for Active Conversation
+  const fetchMessages = useCallback(async (conversationId: string) => {
+    setIsLoadingMessages(true);
+    try {
+      const res = await fetch(`/api/conversations/${conversationId}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.conversation?.messages) {
+          const formatted: ChatMessage[] = data.conversation.messages.map((m: any) => ({
+            id: m.id,
+            role: m.role as "user" | "assistant",
+            content: m.content,
+            timestamp: new Date(m.createdAt).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            actionCard: m.actionCardData || undefined,
+          }));
+          setCurrentMessages(formatted);
+        }
+      }
+    } catch (err) {
+      console.warn("Could not fetch messages for conversation:", err);
+    } finally {
+      setIsLoadingMessages(false);
+    }
+  }, []);
+
+  // Initial Data Load
+  useEffect(() => {
+    fetchUserProfile();
+    fetchConversations();
+  }, [fetchUserProfile, fetchConversations]);
+
+  // Load messages whenever activeConversationId changes
+  useEffect(() => {
+    if (activeConversationId) {
+      fetchMessages(activeConversationId);
+    }
+  }, [activeConversationId, fetchMessages]);
+
+  // 4. Create New Conversation in PostgreSQL
+  const handleNewConversation = async () => {
+    try {
+      const res = await fetch("/api/conversations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: "New Conversation" }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const newConv = data.conversation;
+        setConversations((prev) => [newConv, ...prev]);
+        setActiveConversationId(newConv.id);
+        setCurrentMessages([]);
+        setActivePrompt("Hello! What is my schedule today?");
+      } else {
+        // Fallback for UI if DB is offline
+        const localId = `local-${Date.now()}`;
+        setConversations((prev) => [
+          {
+            id: localId,
+            title: "New Conversation",
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          ...prev,
+        ]);
+        setActiveConversationId(localId);
+        setCurrentMessages([]);
+      }
+    } catch (err) {
+      console.warn("Failed creating conversation:", err);
+    }
+  };
+
+  // 5. Delete Conversation in PostgreSQL
+  const handleDeleteConversation = async (id: string) => {
+    try {
+      const res = await fetch(`/api/conversations/${id}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setConversations((prev) => prev.filter((c) => c.id !== id));
+        if (activeConversationId === id) {
+          const remaining = conversations.filter((c) => c.id !== id);
+          if (remaining.length > 0) {
+            setActiveConversationId(remaining[0].id);
+          } else {
+            setActiveConversationId(null);
+            setCurrentMessages([]);
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Failed deleting conversation:", err);
+    }
+  };
+
+  // 6. Save Message in PostgreSQL
+  const handleSaveMessageToDb = async (msg: {
+    role: "user" | "assistant";
+    content: string;
+    actionCardData?: unknown;
+  }) => {
+    let targetConvId = activeConversationId;
+
+    // If no active conversation exists, auto-create one first
+    if (!targetConvId) {
+      try {
+        const res = await fetch("/api/conversations", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: msg.content.slice(0, 32) || "New Discussion",
+          }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          targetConvId = data.conversation.id;
+          setActiveConversationId(targetConvId);
+          setConversations((prev) => [data.conversation, ...prev]);
+        }
+      } catch (e) {
+        console.warn("Could not create conversation for message:", e);
+      }
+    }
+
+    if (!targetConvId || targetConvId.startsWith("local-")) {
+      return;
+    }
+
+    try {
+      await fetch(`/api/conversations/${targetConvId}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(msg),
+      });
+    } catch (err) {
+      console.error("Failed saving message to DB:", err);
+    }
+  };
+
+  // 7. Logout Handler
+  const handleLogout = async () => {
+    try {
+      if (descope?.logout) {
+        await descope.logout();
+      }
+    } catch (err) {
+      console.error("Logout error:", err);
+    } finally {
+      router.push("/login");
+    }
+  };
 
   const handleSelectMeeting = (meeting: Meeting) => {
     setSelectedMeeting(meeting);
@@ -49,10 +264,14 @@ export const DashboardShell: React.FC = () => {
         setActiveTab={setActiveTab}
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
-        onNewChat={() => {
-          setActivePrompt("Hello! What is my schedule today?");
-          setActiveTab("chat");
-        }}
+        onNewChat={handleNewConversation}
+        conversations={conversations}
+        activeConversationId={activeConversationId}
+        onSelectConversation={(id) => setActiveConversationId(id)}
+        onDeleteConversation={handleDeleteConversation}
+        userProfile={dbUserProfile}
+        onLogout={handleLogout}
+        isLoadingConversations={isLoadingConversations}
       />
 
       {/* Main Content Area */}
@@ -98,7 +317,7 @@ export const DashboardShell: React.FC = () => {
 
             <div className="flex items-center gap-2 rounded-full border border-slate-800 bg-slate-900/80 px-3 py-1 text-[11px] text-slate-300">
               <Sparkles className="h-3 w-3 text-indigo-400" />
-              <span>Gemini Agent</span>
+              <span>Descope + Neon DB</span>
               <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
             </div>
           </div>
@@ -114,6 +333,10 @@ export const DashboardShell: React.FC = () => {
                   <ChatInterface
                     externalPrompt={activePrompt}
                     onClearExternalPrompt={() => setActivePrompt(undefined)}
+                    conversationId={activeConversationId}
+                    savedMessages={currentMessages}
+                    onSaveMessageToDb={handleSaveMessageToDb}
+                    isConversationLoading={isLoadingMessages}
                   />
                 </div>
                 <div className="hidden lg:block h-full overflow-hidden">
@@ -127,6 +350,10 @@ export const DashboardShell: React.FC = () => {
               <ChatInterface
                 externalPrompt={activePrompt}
                 onClearExternalPrompt={() => setActivePrompt(undefined)}
+                conversationId={activeConversationId}
+                savedMessages={currentMessages}
+                onSaveMessageToDb={handleSaveMessageToDb}
+                isConversationLoading={isLoadingMessages}
               />
             )
           ) : activeTab === "calendar" ? (
@@ -155,4 +382,3 @@ export const DashboardShell: React.FC = () => {
     </div>
   );
 };
-

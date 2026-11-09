@@ -12,8 +12,18 @@ import {
   Sparkles,
   ShieldCheck,
   X,
+  Trash2,
+  Loader2,
 } from "lucide-react";
 import { cn } from "@shared/utils/utils";
+
+export interface ConversationSummary {
+  id: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+  _count?: { messages: number };
+}
 
 interface SidebarProps {
   activeTab: "chat" | "calendar" | "meetings" | "settings";
@@ -21,13 +31,18 @@ interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
   onNewChat: () => void;
+  conversations?: ConversationSummary[];
+  activeConversationId?: string | null;
+  onSelectConversation?: (id: string) => void;
+  onDeleteConversation?: (id: string) => void;
+  userProfile?: {
+    name?: string | null;
+    email?: string | null;
+    profileImage?: string | null;
+  } | null;
+  onLogout?: () => void;
+  isLoadingConversations?: boolean;
 }
-
-const mockChatHistory = [
-  { id: "1", title: "Schedule Q3 Engineering Sync", date: "Today" },
-  { id: "2", title: "Reschedule 1-on-1 with Sarah", date: "Yesterday" },
-  { id: "3", title: "Check free slots for Friday", date: "Nov 5" },
-];
 
 export const Sidebar: React.FC<SidebarProps> = ({
   activeTab,
@@ -35,7 +50,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isOpen,
   onClose,
   onNewChat,
+  conversations = [],
+  activeConversationId,
+  onSelectConversation,
+  onDeleteConversation,
+  userProfile,
+  onLogout,
+  isLoadingConversations = false,
 }) => {
+  const displayName = userProfile?.name || "Productivity User";
+  const displayEmail = userProfile?.email || "user@descope.com";
+  const userInitials = displayName
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
   return (
     <>
       {/* Mobile Backdrop */}
@@ -63,7 +94,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div className="flex items-center gap-1.5">
                 <span className="font-semibold text-white tracking-tight">Agentic AI</span>
                 <span className="rounded bg-indigo-500/20 px-1.5 py-0.5 text-[10px] font-medium text-indigo-300">
-                  v0.1
+                  v0.2
                 </span>
               </div>
               <p className="text-[11px] text-slate-400">Meeting & Productivity</p>
@@ -159,54 +190,92 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </button>
         </div>
 
-        {/* Chat History Section */}
+        {/* PostgreSQL Chat History Section */}
         <div className="mt-2 flex-1 overflow-y-auto px-3 py-2">
           <div className="flex items-center justify-between px-2 pb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-            <span>Recent Conversations</span>
+            <span>Conversations (Neon DB)</span>
             <Sparkles className="h-3 w-3 text-indigo-400" />
           </div>
-          <div className="space-y-1">
-            {mockChatHistory.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => {
-                  setActiveTab("chat");
-                  onClose();
-                }}
-                className="group flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-xs text-slate-300 transition-colors hover:bg-slate-900 hover:text-white"
-              >
-                <div className="flex items-center gap-2 overflow-hidden">
-                  <MessageSquare className="h-3.5 w-3.5 text-slate-500 group-hover:text-indigo-400 shrink-0" />
-                  <span className="truncate">{item.title}</span>
-                </div>
-                <span className="text-[10px] text-slate-500 shrink-0">{item.date}</span>
-              </button>
-            ))}
-          </div>
+
+          {isLoadingConversations ? (
+            <div className="flex items-center justify-center py-6 text-xs text-slate-500 gap-2">
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-indigo-400" />
+              <span>Loading history...</span>
+            </div>
+          ) : conversations.length === 0 ? (
+            <div className="rounded-lg border border-dashed border-slate-800 p-3 text-center text-xs text-slate-500">
+              No conversations yet. Start a new chat!
+            </div>
+          ) : (
+            <div className="space-y-1">
+              {conversations.map((item) => {
+                const isActive = activeConversationId === item.id;
+                return (
+                  <div
+                    key={item.id}
+                    className={cn(
+                      "group flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-xs transition-colors",
+                      isActive
+                        ? "bg-indigo-600/20 text-white border border-indigo-500/30 font-medium"
+                        : "text-slate-300 hover:bg-slate-900 hover:text-white"
+                    )}
+                  >
+                    <button
+                      onClick={() => {
+                        onSelectConversation?.(item.id);
+                        setActiveTab("chat");
+                        onClose();
+                      }}
+                      className="flex flex-1 items-center gap-2 overflow-hidden text-left"
+                    >
+                      <MessageSquare
+                        className={cn(
+                          "h-3.5 w-3.5 shrink-0",
+                          isActive ? "text-indigo-400" : "text-slate-500 group-hover:text-indigo-400"
+                        )}
+                      />
+                      <span className="truncate">{item.title}</span>
+                    </button>
+
+                    {onDeleteConversation && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (confirm("Delete this conversation?")) {
+                            onDeleteConversation(item.id);
+                          }
+                        }}
+                        title="Delete conversation"
+                        className="opacity-0 group-hover:opacity-100 p-1 text-slate-500 hover:text-rose-400 transition-opacity"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
-        {/* Integration Status Pill */}
+        {/* Database & Auth Status */}
         <div className="mx-3 mb-2 rounded-lg border border-slate-800 bg-slate-900/60 p-2.5">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
-              Architecture Layers
+              Backend Systems
             </span>
             <span className="text-[10px] rounded bg-emerald-500/10 px-1.5 py-0.5 font-medium text-emerald-400">
-              Clean Separation
+              Stage 2 Live
             </span>
           </div>
           <div className="mt-2 space-y-1.5 text-[11px] text-slate-400">
             <div className="flex items-center justify-between">
-              <span>Frontend Layer</span>
-              <span className="text-emerald-400 font-mono">@frontend/*</span>
+              <span>Descope Auth</span>
+              <span className="text-emerald-400 font-mono">Google OAuth</span>
             </div>
             <div className="flex items-center justify-between">
-              <span>Backend Layer</span>
-              <span className="text-indigo-400 font-mono">@backend/*</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span>Shared Models</span>
-              <span className="text-amber-400 font-mono">@shared/*</span>
+              <span>Neon PostgreSQL</span>
+              <span className="text-emerald-400 font-mono">Prisma ORM</span>
             </div>
           </div>
         </div>
@@ -214,21 +283,31 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* User Profile & Logout */}
         <div className="border-t border-slate-800/80 p-3">
           <div className="flex items-center justify-between rounded-xl bg-slate-900/80 p-2.5">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/20 font-semibold text-xs text-indigo-300">
-                JD
-              </div>
+            <div className="flex items-center gap-2.5 overflow-hidden">
+              {userProfile?.profileImage ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={userProfile.profileImage}
+                  alt={displayName}
+                  className="h-8 w-8 rounded-lg object-cover border border-slate-700"
+                />
+              ) : (
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/20 font-semibold text-xs text-indigo-300">
+                  {userInitials}
+                </div>
+              )}
               <div className="overflow-hidden">
-                <p className="truncate text-xs font-medium text-white">John Doe</p>
+                <p className="truncate text-xs font-medium text-white">{displayName}</p>
                 <div className="flex items-center gap-1">
-                  <ShieldCheck className="h-3 w-3 text-indigo-400" />
-                  <span className="text-[10px] text-slate-400">Descope Auth (Stage 2)</span>
+                  <ShieldCheck className="h-3 w-3 text-indigo-400 shrink-0" />
+                  <span className="truncate text-[10px] text-slate-400">{displayEmail}</span>
                 </div>
               </div>
             </div>
             <button
-              title="Logout placeholder (Descope in Stage 2)"
-              className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-800 hover:text-rose-400"
+              onClick={onLogout}
+              title="Sign Out"
+              className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-800 hover:text-rose-400 shrink-0"
             >
               <LogOut className="h-4 w-4" />
             </button>
@@ -238,4 +317,3 @@ export const Sidebar: React.FC<SidebarProps> = ({
     </>
   );
 };
-

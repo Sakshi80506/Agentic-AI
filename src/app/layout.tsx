@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { AuthProviderWrapper } from "@frontend/components/auth/AuthProviderWrapper";
 
 export const metadata: Metadata = {
   title: "Agentic AI - Meeting & Productivity Assistant",
@@ -14,9 +15,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <body className="h-full antialiased bg-slate-900 text-slate-100">
-        {children}
+        <AuthProviderWrapper>{children}</AuthProviderWrapper>
       </body>
     </html>
   );
 }
-
