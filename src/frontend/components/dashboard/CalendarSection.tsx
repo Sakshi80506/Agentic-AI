@@ -124,11 +124,11 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
   };
 
   return (
-    <div className="flex h-full flex-col bg-slate-900/50 p-4 lg:p-6 overflow-y-auto">
+    <div className="flex h-full flex-col bg-slate-100/60 dark:bg-slate-900/50 p-4 lg:p-6 overflow-y-auto transition-colors">
       {/* Top Banner Notice */}
-      <div className="mb-4 flex items-center justify-between rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-xs text-amber-300">
+      <div className="mb-4 flex items-center justify-between rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-xs text-amber-700 dark:text-amber-300">
         <div className="flex items-center gap-2">
-          <Info className="h-4 w-4 shrink-0 text-amber-400" />
+          <Info className="h-4 w-4 shrink-0 text-amber-500 dark:text-amber-400" />
           <span>
             <strong>UI Preview Mode:</strong> Displaying labelled mock events. Live Google Calendar
             OAuth sync will be wired in <strong>Stage 5</strong>.
@@ -136,7 +136,7 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
         </div>
         <button
           onClick={() => onRequestSchedule("Find a free meeting slot tomorrow.")}
-          className="hidden sm:flex items-center gap-1 rounded bg-amber-500/20 px-2 py-1 text-[11px] font-semibold text-amber-200 hover:bg-amber-500/30"
+          className="hidden sm:flex items-center gap-1 rounded bg-amber-500/20 px-2 py-1 text-[11px] font-semibold text-amber-800 dark:text-amber-200 hover:bg-amber-500/30"
         >
           <Sparkles className="h-3 w-3" />
           Test AI Slot Finder
@@ -144,27 +144,27 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
       </div>
 
       {/* Calendar Header Controls */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b border-slate-200 dark:border-slate-800">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-500/20 text-indigo-400">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
             <CalendarIcon className="h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-base font-semibold text-white">Calendar Schedule</h2>
-            <p className="text-xs text-slate-400">Friday, November 7, 2026</p>
+            <h2 className="text-base font-semibold text-slate-900 dark:text-white">Calendar Schedule</h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Friday, November 7, 2026</p>
           </div>
         </div>
 
         {/* View Switcher & Nav Buttons */}
         <div className="flex items-center gap-2">
-          <div className="flex rounded-lg bg-slate-800/80 p-1 border border-slate-700">
+          <div className="flex rounded-lg bg-slate-200/80 dark:bg-slate-800/80 p-1 border border-slate-300 dark:border-slate-700">
             <button
               onClick={() => setView("day")}
               className={cn(
                 "rounded-md px-3 py-1 text-xs font-medium transition-colors",
                 view === "day"
                   ? "bg-indigo-600 text-white shadow-sm"
-                  : "text-slate-400 hover:text-white"
+                  : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
               )}
             >
               Daily View
@@ -175,7 +175,7 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
                 "rounded-md px-3 py-1 text-xs font-medium transition-colors",
                 view === "week"
                   ? "bg-indigo-600 text-white shadow-sm"
-                  : "text-slate-400 hover:text-white"
+                  : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
               )}
             >
               Weekly View
@@ -184,18 +184,18 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
 
           <div className="flex items-center gap-1">
             <button
-              className="rounded-lg border border-slate-800 bg-slate-800/60 p-1.5 text-slate-300 hover:bg-slate-700 hover:text-white"
+              className="rounded-lg border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-800/60 p-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white shadow-sm"
               title="Previous"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
             <button
-              className="rounded-lg border border-slate-800 bg-slate-800/60 px-2.5 py-1 text-xs font-medium text-slate-200 hover:bg-slate-700"
+              className="rounded-lg border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-800/60 px-2.5 py-1 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 shadow-sm"
             >
               Today
             </button>
             <button
-              className="rounded-lg border border-slate-800 bg-slate-800/60 p-1.5 text-slate-300 hover:bg-slate-700 hover:text-white"
+              className="rounded-lg border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-800/60 p-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white shadow-sm"
               title="Next"
             >
               <ChevronRight className="h-4 w-4" />
@@ -210,10 +210,10 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
           /* Daily View Grid */
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
             {/* Timeline Column (3/4) */}
-            <div className="lg:col-span-3 rounded-xl border border-slate-800 bg-slate-950/40 p-4">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-800/80">
-                <span className="text-xs font-medium text-slate-400">Timeline (Today)</span>
-                <span className="text-[11px] font-mono text-indigo-400">Timezone: Local (IST)</span>
+            <div className="lg:col-span-3 rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950/40 p-4 shadow-sm">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800/80">
+                <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Timeline (Today)</span>
+                <span className="text-[11px] font-mono text-indigo-600 dark:text-indigo-400">Timezone: Local (IST)</span>
               </div>
 
               <div className="mt-3 space-y-3">
@@ -224,10 +224,10 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
 
                   return (
                     <div key={time} className="flex items-start gap-4 group">
-                      <span className="w-12 text-right font-mono text-xs text-slate-500 pt-1">
+                      <span className="w-12 text-right font-mono text-xs text-slate-400 dark:text-slate-500 pt-1">
                         {time}
                       </span>
-                      <div className="relative flex-1 min-h-[52px] rounded-lg border border-dashed border-slate-800/80 p-1 group-hover:border-slate-700">
+                      <div className="relative flex-1 min-h-[52px] rounded-lg border border-dashed border-slate-200 dark:border-slate-800/80 p-1 group-hover:border-slate-400 dark:group-hover:border-slate-700">
                         {matchingMeetings.length > 0 ? (
                           matchingMeetings.map((meeting) => (
                             <div
@@ -243,11 +243,11 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
                                   <span className="font-semibold text-xs text-white">
                                     {meeting.title}
                                   </span>
-                                  <span className="rounded bg-slate-800/70 px-1.5 py-0.2 text-[10px] text-slate-300">
+                                  <span className="rounded bg-slate-900/60 px-1.5 py-0.2 text-[10px] text-slate-200">
                                     {meeting.category}
                                   </span>
                                 </div>
-                                <div className="mt-1 flex items-center gap-3 text-[11px] text-slate-300">
+                                <div className="mt-1 flex items-center gap-3 text-[11px] text-slate-200">
                                   <span className="flex items-center gap-1">
                                     <Clock className="h-3 w-3" />
                                     {meeting.startTime} - {meeting.endTime}
@@ -258,13 +258,13 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
                                   </span>
                                 </div>
                               </div>
-                              <span className="rounded bg-indigo-500/20 px-2 py-1 text-[10px] font-medium text-indigo-300">
+                              <span className="rounded bg-white/20 dark:bg-indigo-500/20 px-2 py-1 text-[10px] font-medium text-white dark:text-indigo-300">
                                 View Details
                               </span>
                             </div>
                           ))
                         ) : (
-                          <div className="h-full flex items-center px-3 text-[11px] text-slate-600">
+                          <div className="h-full flex items-center px-3 text-[11px] text-slate-400 dark:text-slate-600">
                             Available slot
                           </div>
                         )}
@@ -277,8 +277,8 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
 
             {/* Upcoming Summary Card (1/4) */}
             <div className="space-y-4">
-              <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-4">
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">
+              <div className="rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950/40 p-4 shadow-sm">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">
                   Upcoming Meetings
                 </h3>
                 <div className="space-y-2.5">
@@ -286,17 +286,17 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
                     <div
                       key={meeting.id}
                       onClick={() => onSelectMeeting(meeting)}
-                      className="cursor-pointer rounded-lg border border-slate-800/90 bg-slate-900/60 p-2.5 transition-all hover:border-indigo-500/50 hover:bg-slate-850"
+                      className="cursor-pointer rounded-lg border border-slate-200 bg-slate-50 dark:border-slate-800/90 dark:bg-slate-900/60 p-2.5 transition-all hover:border-indigo-400 dark:hover:border-indigo-500/50"
                     >
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium text-white truncate">
+                        <span className="text-xs font-medium text-slate-900 dark:text-white truncate">
                           {meeting.title}
                         </span>
-                        <span className="text-[10px] font-medium text-indigo-400">
+                        <span className="text-[10px] font-medium text-indigo-600 dark:text-indigo-400">
                           {meeting.date.slice(5)}
                         </span>
                       </div>
-                      <p className="mt-1 text-[11px] text-slate-400">
+                      <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
                         {meeting.startTime} - {meeting.endTime}
                       </p>
                     </div>
@@ -305,12 +305,12 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
               </div>
 
               {/* Quick AI Action Card */}
-              <div className="rounded-xl border border-indigo-500/20 bg-gradient-to-br from-indigo-950/40 to-slate-900/60 p-4">
-                <div className="flex items-center gap-2 text-indigo-300 text-xs font-semibold mb-2">
+              <div className="rounded-xl border border-indigo-200 bg-gradient-to-br from-indigo-50 to-white p-4 dark:border-indigo-500/20 dark:from-indigo-950/40 dark:to-slate-900/60 shadow-sm">
+                <div className="flex items-center gap-2 text-indigo-700 dark:text-indigo-300 text-xs font-semibold mb-2">
                   <Sparkles className="h-4 w-4" />
                   <span>Agent Scheduling</span>
                 </div>
-                <p className="text-[11px] text-slate-300 leading-relaxed mb-3">
+                <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed mb-3">
                   The AI Agent can automatically detect conflicts, propose optimal slots, and
                   synchronize calendar invites.
                 </p>
@@ -325,7 +325,7 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
           </div>
         ) : (
           /* Weekly View Grid */
-          <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-4">
+          <div className="rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950/40 p-4 shadow-sm">
             <div className="grid grid-cols-5 gap-3">
               {weekDays.map((wd) => {
                 const dayMeetings = PREVIEW_MEETINGS.filter((m) => m.date === wd.fullDate);
@@ -335,18 +335,18 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
                     className={cn(
                       "rounded-lg border p-3 flex flex-col min-h-[360px]",
                       wd.isToday
-                        ? "border-indigo-500/40 bg-indigo-950/10"
-                        : "border-slate-800/80 bg-slate-900/30"
+                        ? "border-indigo-400 bg-indigo-50/50 dark:border-indigo-500/40 dark:bg-indigo-950/10"
+                        : "border-slate-200 bg-slate-50/60 dark:border-slate-800/80 dark:bg-slate-900/30"
                     )}
                   >
-                    <div className="flex items-center justify-between pb-2 border-b border-slate-800 mb-2">
-                      <span className="text-xs font-semibold text-slate-300">{wd.day}</span>
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800 mb-2">
+                      <span className="text-xs font-semibold text-slate-800 dark:text-slate-300">{wd.day}</span>
                       <span
                         className={cn(
                           "text-[11px] px-1.5 py-0.2 rounded font-mono",
                           wd.isToday
                             ? "bg-indigo-600 text-white font-bold"
-                            : "text-slate-400"
+                            : "text-slate-500 dark:text-slate-400"
                         )}
                       >
                         {wd.date}
@@ -365,13 +365,13 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
                             )}
                           >
                             <p className="font-semibold text-white truncate">{m.title}</p>
-                            <p className="text-[10px] text-slate-300 mt-1 font-mono">
+                            <p className="text-[10px] text-slate-100 mt-1 font-mono">
                               {m.startTime} - {m.endTime}
                             </p>
                           </div>
                         ))
                       ) : (
-                        <div className="h-full flex items-center justify-center text-[11px] text-slate-600 italic">
+                        <div className="h-full flex items-center justify-center text-[11px] text-slate-400 dark:text-slate-600 italic">
                           No events
                         </div>
                       )}

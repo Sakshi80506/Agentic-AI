@@ -15,7 +15,10 @@ import {
   Menu,
   Columns,
   Sparkles,
+  Sun,
+  Moon,
 } from "lucide-react";
+import { useTheme } from "@frontend/context/ThemeContext";
 import { cn } from "@shared/utils/utils";
 
 export const DashboardShell: React.FC = () => {
@@ -24,6 +27,7 @@ export const DashboardShell: React.FC = () => {
   const { isAuthenticated } = useSession();
   const { user: descopeUser } = useUser();
 
+  const { theme, toggleTheme } = useTheme();
   const [activeTab, setActiveTab] = useState<"chat" | "calendar" | "meetings" | "settings">("chat");
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const [isSplitView, setIsSplitView] = useState<boolean>(true);
@@ -257,7 +261,7 @@ export const DashboardShell: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-slate-950 text-slate-100">
+    <div className="flex h-screen w-screen overflow-hidden bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200">
       {/* Sidebar Navigation */}
       <Sidebar
         activeTab={activeTab}
@@ -276,37 +280,63 @@ export const DashboardShell: React.FC = () => {
 
       {/* Main Content Area */}
       <div className="flex flex-1 flex-col overflow-hidden">
-        {/* Top Navigation Bar */}
-        <header className="flex h-14 items-center justify-between border-b border-slate-800/80 bg-slate-950/80 px-4 backdrop-blur">
+        {/* Top Navigation Bar / Taskbar */}
+        <header className="flex h-14 items-center justify-between border-b border-slate-200 bg-white/80 px-4 backdrop-blur dark:border-slate-800/80 dark:bg-slate-950/80 transition-colors">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className="rounded-lg p-2 text-slate-400 hover:bg-slate-900 hover:text-white lg:hidden"
+              className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white lg:hidden"
+              aria-label="Open sidebar menu"
             >
               <Menu className="h-5 w-5" />
             </button>
 
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold capitalize text-white">
+              <span className="text-xs font-semibold capitalize text-slate-900 dark:text-white">
                 {activeTab === "chat" ? "Agentic Assistant" : activeTab}
               </span>
-              <span className="hidden sm:inline-block h-1 w-1 rounded-full bg-slate-700" />
-              <span className="hidden sm:inline-block text-[11px] text-slate-400">
+              <span className="hidden sm:inline-block h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-700" />
+              <span className="hidden sm:inline-block text-[11px] text-slate-500 dark:text-slate-400">
                 AI Meeting Orchestrator
               </span>
             </div>
           </div>
 
-          {/* Quick Header Controls */}
+          {/* Quick Header Controls / Top Taskbar Right Actions */}
           <div className="flex items-center gap-2">
+            {/* Dark / Light Mode Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              className={cn(
+                "flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-all shadow-sm active:scale-95",
+                theme === "dark"
+                  ? "border-slate-800 bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white"
+                  : "border-slate-200 bg-white text-slate-700 hover:bg-slate-100 hover:text-slate-900"
+              )}
+              title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
+              aria-label="Toggle dark/light mode"
+            >
+              {theme === "dark" ? (
+                <>
+                  <Sun className="h-3.5 w-3.5 text-amber-400 animate-in fade-in zoom-in duration-200" />
+                  <span className="hidden sm:inline">Light</span>
+                </>
+              ) : (
+                <>
+                  <Moon className="h-3.5 w-3.5 text-indigo-600 animate-in fade-in zoom-in duration-200" />
+                  <span className="hidden sm:inline">Dark</span>
+                </>
+              )}
+            </button>
+
             {activeTab === "chat" && (
               <button
                 onClick={() => setIsSplitView(!isSplitView)}
                 className={cn(
-                  "hidden lg:flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors",
+                  "hidden lg:flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors shadow-sm",
                   isSplitView
-                    ? "border-indigo-500/50 bg-indigo-500/10 text-indigo-300"
-                    : "border-slate-800 bg-slate-900 text-slate-400 hover:text-white"
+                    ? "border-indigo-500/50 bg-indigo-500/10 text-indigo-600 dark:text-indigo-300"
+                    : "border-slate-200 bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:text-white"
                 )}
                 title="Toggle Split Screen View (Chat + Calendar)"
               >
@@ -315,10 +345,10 @@ export const DashboardShell: React.FC = () => {
               </button>
             )}
 
-            <div className="flex items-center gap-2 rounded-full border border-slate-800 bg-slate-900/80 px-3 py-1 text-[11px] text-slate-300">
-              <Sparkles className="h-3 w-3 text-indigo-400" />
-              <span>Descope + Neon DB</span>
-              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+            <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] text-slate-700 dark:border-slate-800 dark:bg-slate-900/80 dark:text-slate-300 shadow-sm">
+              <Sparkles className="h-3 w-3 text-indigo-500 dark:text-indigo-400" />
+              <span className="hidden sm:inline">Descope + Neon DB</span>
+              <span className="h-2 w-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse" />
             </div>
           </div>
         </header>
@@ -328,7 +358,7 @@ export const DashboardShell: React.FC = () => {
           {activeTab === "chat" ? (
             isSplitView ? (
               /* Split Screen: Chat (50%) + Calendar (50%) on large screens */
-              <div className="grid h-full grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-slate-800">
+              <div className="grid h-full grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-slate-200 dark:divide-slate-800">
                 <div className="h-full overflow-hidden">
                   <ChatInterface
                     externalPrompt={activePrompt}

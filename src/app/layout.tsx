@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProviderWrapper } from "@frontend/components/auth/AuthProviderWrapper";
+import { ThemeProvider } from "@frontend/context/ThemeContext";
 
 export const metadata: Metadata = {
   title: "Agentic AI - Meeting & Productivity Assistant",
@@ -13,9 +14,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
-      <body className="h-full antialiased bg-slate-900 text-slate-100">
-        <AuthProviderWrapper>{children}</AuthProviderWrapper>
+    <html lang="en" className="h-full dark" suppressHydrationWarning>
+      <body className="h-full antialiased bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200">
+        <ThemeProvider>
+          <AuthProviderWrapper>{children}</AuthProviderWrapper>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -203,29 +203,29 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   };
 
   return (
-    <div className="flex h-full flex-col bg-slate-950">
+    <div className="flex h-full flex-col bg-slate-50 dark:bg-slate-950 transition-colors">
       {/* Header Bar */}
-      <div className="flex items-center justify-between border-b border-slate-800/80 px-6 py-3.5 bg-slate-900/40">
+      <div className="flex items-center justify-between border-b border-slate-200 bg-white/80 px-6 py-3.5 dark:border-slate-800/80 dark:bg-slate-900/40">
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600/20 text-indigo-400">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-600 dark:bg-indigo-600/20 dark:text-indigo-400">
             <Bot className="h-4 w-4" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-white">Assistant Session</span>
-              <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-400 border border-emerald-500/20">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-xs font-semibold text-slate-900 dark:text-white">Assistant Session</span>
+              <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse" />
                 PostgreSQL Connected
               </span>
             </div>
-            <p className="text-[11px] text-slate-400">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
               {conversationId ? `Conversation ID: ${conversationId.slice(0, 12)}...` : "Active Session"}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="rounded-md bg-slate-800 px-2 py-1 text-[10px] font-mono text-slate-400 border border-slate-700">
+          <span className="rounded-md bg-slate-100 dark:bg-slate-800 px-2 py-1 text-[10px] font-mono text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
             Stage 2 Active
           </span>
         </div>
@@ -235,7 +235,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6 lg:px-8">
         {isConversationLoading ? (
           <div className="flex items-center justify-center h-full text-xs text-slate-500 gap-2">
-            <Loader2 className="h-4 w-4 animate-spin text-indigo-400" />
+            <Loader2 className="h-4 w-4 animate-spin text-indigo-500 dark:text-indigo-400" />
             <span>Retrieving conversation messages from Neon PostgreSQL...</span>
           </div>
         ) : (
@@ -258,7 +258,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                   "rounded-2xl px-4 py-3 text-xs leading-relaxed max-w-[85%] sm:max-w-[75%]",
                   msg.role === "user"
                     ? "bg-indigo-600 text-white rounded-br-none shadow-md shadow-indigo-600/10"
-                    : "bg-slate-900 border border-slate-800 text-slate-200 rounded-bl-none shadow-sm"
+                    : "bg-white border border-slate-200 text-slate-800 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-200 rounded-bl-none shadow-sm"
                 )}
               >
                 <div className="whitespace-pre-wrap">{msg.content}</div>
@@ -276,7 +276,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 <div
                   className={cn(
                     "mt-2 text-[10px]",
-                    msg.role === "user" ? "text-indigo-200 text-right" : "text-slate-500"
+                    msg.role === "user" ? "text-indigo-200 text-right" : "text-slate-400 dark:text-slate-500"
                   )}
                 >
                   {msg.timestamp}
@@ -284,7 +284,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
               </div>
 
               {msg.role === "user" && (
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-slate-800 text-slate-300 border border-slate-700">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-slate-200 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700">
                   <User className="h-4 w-4" />
                 </div>
               )}
@@ -295,11 +295,11 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
         {/* Loading Indicator */}
         {isLoading && (
           <div className="flex items-center gap-3 mr-auto max-w-md">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-indigo-600/20 text-indigo-400">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-600 dark:bg-indigo-600/20 dark:text-indigo-400">
               <Bot className="h-4 w-4" />
             </div>
-            <div className="flex items-center gap-2 rounded-2xl rounded-bl-none border border-slate-800 bg-slate-900 px-4 py-3 text-xs text-slate-400">
-              <Loader2 className="h-3.5 w-3.5 animate-spin text-indigo-400" />
+            <div className="flex items-center gap-2 rounded-2xl rounded-bl-none border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 px-4 py-3 text-xs text-slate-600 dark:text-slate-400 shadow-sm">
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-indigo-500 dark:text-indigo-400" />
               <span>Saving message & generating response...</span>
             </div>
           </div>
@@ -309,9 +309,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       </div>
 
       {/* Suggested Prompts Pill Section */}
-      <div className="border-t border-slate-800/80 bg-slate-950/90 px-4 pt-3 pb-2 lg:px-8">
-        <div className="flex items-center gap-1.5 pb-2 text-[11px] font-medium text-slate-400">
-          <Sparkles className="h-3 w-3 text-indigo-400" />
+      <div className="border-t border-slate-200 bg-white/90 px-4 pt-3 pb-2 dark:border-slate-800/80 dark:bg-slate-950/90 lg:px-8">
+        <div className="flex items-center gap-1.5 pb-2 text-[11px] font-medium text-slate-600 dark:text-slate-400">
+          <Sparkles className="h-3 w-3 text-indigo-500 dark:text-indigo-400" />
           <span>Suggested Prompts:</span>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -319,9 +319,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             <button
               key={item.id}
               onClick={() => handleSend(item.prompt)}
-              className="flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900/80 px-2.5 py-1.5 text-[11px] text-slate-300 transition-all hover:border-indigo-500/40 hover:bg-slate-800 hover:text-white active:scale-95"
+              className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-100 px-2.5 py-1.5 text-[11px] text-slate-700 transition-all hover:border-indigo-400 hover:bg-slate-200 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-900/80 dark:text-slate-300 dark:hover:border-indigo-500/40 dark:hover:bg-slate-800 dark:hover:text-white active:scale-95"
             >
-              <Zap className="h-2.5 w-2.5 text-indigo-400" />
+              <Zap className="h-2.5 w-2.5 text-indigo-500 dark:text-indigo-400" />
               <span>{item.label}</span>
             </button>
           ))}
@@ -329,7 +329,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       </div>
 
       {/* Chat Input Bar */}
-      <div className="p-4 lg:px-8 bg-slate-950">
+      <div className="p-4 lg:px-8 bg-slate-50 dark:bg-slate-950">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -343,7 +343,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Ask AI to find slots, schedule, reschedule, or check meetings..."
-            className="w-full rounded-xl border border-slate-800 bg-slate-900/90 py-3.5 pl-4 pr-24 text-xs text-white placeholder-slate-500 shadow-inner outline-none transition-colors focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30"
+            className="w-full rounded-xl border border-slate-300 bg-white py-3.5 pl-4 pr-24 text-xs text-slate-900 placeholder-slate-400 shadow-sm outline-none transition-colors focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 dark:border-slate-800 dark:bg-slate-900/90 dark:text-white dark:placeholder-slate-500"
           />
           <button
             type="submit"

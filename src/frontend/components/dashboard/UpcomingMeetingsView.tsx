@@ -15,11 +15,11 @@ export const UpcomingMeetingsView: React.FC<UpcomingMeetingsViewProps> = ({
   onRequestSchedule,
 }) => {
   return (
-    <div className="flex h-full flex-col p-4 lg:p-8 overflow-y-auto bg-slate-900/40">
-      <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+    <div className="flex h-full flex-col p-4 lg:p-8 overflow-y-auto bg-slate-100/60 dark:bg-slate-900/40 transition-colors">
+      <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
         <div>
-          <h2 className="text-lg font-semibold text-white">Upcoming Meetings & Agendas</h2>
-          <p className="text-xs text-slate-400">
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Upcoming Meetings & Agendas</h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             Chronological view of confirmed sessions and planned discussions
           </p>
         </div>
@@ -37,30 +37,30 @@ export const UpcomingMeetingsView: React.FC<UpcomingMeetingsViewProps> = ({
           <div
             key={meeting.id}
             onClick={() => onSelectMeeting(meeting)}
-            className="group cursor-pointer rounded-xl border border-slate-800 bg-slate-900/80 p-4 transition-all hover:border-indigo-500/40 hover:bg-slate-850"
+            className="group cursor-pointer rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/80 p-4 transition-all hover:border-indigo-400 dark:hover:border-indigo-500/40 hover:shadow-md"
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="rounded-full bg-indigo-500/10 px-2 py-0.5 text-[10px] font-medium text-indigo-400 uppercase">
+                  <span className="rounded-full bg-indigo-500/10 px-2 py-0.5 text-[10px] font-medium text-indigo-600 dark:text-indigo-400 uppercase">
                     {meeting.category}
                   </span>
-                  <h3 className="text-sm font-semibold text-white group-hover:text-indigo-300 transition-colors">
+                  <h3 className="text-sm font-semibold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors">
                     {meeting.title}
                   </h3>
                 </div>
                 {meeting.description && (
-                  <p className="text-xs text-slate-400 line-clamp-1">{meeting.description}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">{meeting.description}</p>
                 )}
               </div>
 
-              <div className="flex items-center gap-3 text-xs text-slate-300">
+              <div className="flex items-center gap-3 text-xs text-slate-600 dark:text-slate-300">
                 <div className="flex items-center gap-1">
-                  <Calendar className="h-3.5 w-3.5 text-indigo-400" />
+                  <Calendar className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />
                   <span>{meeting.date}</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Clock className="h-3.5 w-3.5 text-indigo-400" />
+                  <Clock className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />
                   <span>
                     {meeting.startTime} - {meeting.endTime}
                   </span>
@@ -68,12 +68,12 @@ export const UpcomingMeetingsView: React.FC<UpcomingMeetingsViewProps> = ({
               </div>
             </div>
 
-            <div className="mt-4 flex items-center justify-between border-t border-slate-800/80 pt-3 text-xs text-slate-400">
+            <div className="mt-4 flex items-center justify-between border-t border-slate-200 dark:border-slate-800/80 pt-3 text-xs text-slate-500 dark:text-slate-400">
               <div className="flex items-center gap-2">
-                <Users className="h-3.5 w-3.5 text-slate-500" />
+                <Users className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500" />
                 <span>{meeting.attendees.map((a) => a.name).join(", ")}</span>
               </div>
-              <span className="text-[11px] text-indigo-400 font-medium group-hover:underline">
+              <span className="text-[11px] text-indigo-600 dark:text-indigo-400 font-medium group-hover:underline">
                 View & Edit Details →
               </span>
             </div>
